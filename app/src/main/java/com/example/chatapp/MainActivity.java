@@ -75,7 +75,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayAllMessages() {
         ListView listOFMessages = findViewById(R.id.list_of_message);
-        adapter = new FirebaseListAdapter<Message>(this, Message.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference()) {
+        adapter = new FirebaseListAdapter<Message>(this,
+                Message.class,
+                R.layout.list_item,
+                FirebaseDatabase.getInstance().getReference()) {
             @Override
             protected void populateView(View v, Message model, int position) {
                 TextView mess_user, mess_time;
@@ -87,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 mess_user.setText(model.getUserName());
                 mess_text.setText(model.getTextMessage());
                 mess_time.setText(DateFormat.format("HH:mm (dd MMM yyyy)", model.getMessageTime()));
-
             }
         };
 
