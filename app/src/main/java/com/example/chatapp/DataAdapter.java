@@ -15,19 +15,29 @@ import androidx.recyclerview.widget.RecyclerView;
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> {
 
     private List<Room> rooms;
+    private OnChatListener mOnChatListener;
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView textView;
+        TextView textView;
+        OnChatListener onChatListener;
 
-        public MyViewHolder(View v) {
+        MyViewHolder(View v, OnChatListener onChatListener) {
             super(v);
             textView = v.findViewById(R.id.chatName);
+            this.onChatListener = onChatListener;
+            v.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            onChatListener.onChatClick(getAdapterPosition());
         }
     }
 
-    public DataAdapter(List<Room> rooms) {
+    public DataAdapter(List<Room> rooms, OnChatListener onChatListener) {
         this.rooms = rooms;
+        this.mOnChatListener = onChatListener;
     }
 
     @NonNull
@@ -40,7 +50,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> 
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.room, parent, false);
         }
-        return new MyViewHolder(view);
+        return new MyViewHolder(view, mOnChatListener);
     }
 
     @Override
@@ -60,5 +70,9 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> 
     @Override
     public int getItemCount() {
         return rooms.size();
+    }
+
+    public interface OnChatListener{
+        void onChatClick(int position);
     }
 }

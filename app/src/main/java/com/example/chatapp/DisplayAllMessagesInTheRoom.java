@@ -25,6 +25,10 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String chatName = getIntent().getStringExtra("some_object");
+        TextView title = findViewById(R.id.title_forChat);
+        title.setText(chatName);
+
         ListView listOFMessages = findViewById(R.id.list_of_message);
         adapter = new FirebaseListAdapter<Message>(this,
                 Message.class,

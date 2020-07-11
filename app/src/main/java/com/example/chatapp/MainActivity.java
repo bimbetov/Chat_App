@@ -30,7 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ExampleDialog.ExampleDialogListener {
+public class MainActivity extends AppCompatActivity implements ExampleDialog.ExampleDialogListener, DataAdapter.OnChatListener {
     private static int SIGN_IN_CODE = 1;
     private RelativeLayout rooms_activity;
     private List<Room> rooms = new ArrayList<>();
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         rooms.add(0, new Room("")); //Добавляем пустой итем в 0 позицию для того чтобы новые итемы записывались под него
-        mAdapter = new DataAdapter(rooms);
+        mAdapter = new DataAdapter(rooms, this);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -96,4 +96,10 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         mAdapter.notifyItemInserted(1);
     }
 
+    @Override
+    public void onChatClick(int position) {
+        Intent intent = new Intent(this, DisplayAllMessagesInTheRoom.class);
+        intent.putExtra("some_object", rooms.get(position).getChatName());
+        startActivity(intent);
+    }
 }
