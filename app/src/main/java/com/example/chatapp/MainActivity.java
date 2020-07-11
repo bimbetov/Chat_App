@@ -2,15 +2,22 @@ package com.example.chatapp;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
@@ -20,22 +27,25 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements ExampleDialog.ExampleDialogListener {
     private static int SIGN_IN_CODE = 1;
-    private RelativeLayout room_activity;
-    private FirebaseListAdapter<Message> adapter;
-    private FloatingActionButton sendBtn;
+    private RelativeLayout rooms_activity;
+    private List<Room> rooms = new ArrayList<>();
+    private FloatingActionButton createRoomBtn;
+    RecyclerView.Adapter mAdapter;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SIGN_IN_CODE){
-            if (resultCode == RESULT_OK){
-                Snackbar.make(room_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
-                displayAllMessages();
-            }
-            else {
-                Snackbar.make(room_activity, "Вы не авторизованы", Snackbar.LENGTH_LONG).show();
+        if (requestCode == SIGN_IN_CODE) {
+            if (resultCode == RESULT_OK) {
+                Snackbar.make(rooms_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
+                //displayAllMessages();
+            } else {
+                Snackbar.make(rooms_activity, "Вы не авторизованы", Snackbar.LENGTH_LONG).show();
                 finish();
             }
         }
@@ -44,55 +54,46 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_menu);
 
-        room_activity = findViewById(R.id.room_activity);
-        sendBtn = findViewById(R.id.btnSend);
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText textField = findViewById(R.id.messageField);
-                if (textField.getText().toString().equals(""))
-                    return;
-
-                FirebaseDatabase.getInstance().getReference().push().setValue(
-                        new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
-                                textField.getText().toString()
-                        )
-                );
-                textField.setText("");
-            }
-        });
+        rooms_activity = findViewById(R.id.rooms_activity);
 
         //Пользователь еще не авторизован
-        if(FirebaseAuth.getInstance().getCurrentUser() == null)
+        if (FirebaseAuth.getInstance().getCurrentUser() == null)
             startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), SIGN_IN_CODE);
         else {
-            Snackbar.make(room_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
-            displayAllMessages();
+            Snackbar.make(rooms_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
         }
-    }
 
-    private void displayAllMessages() {
-        ListView listOFMessages = findViewById(R.id.list_of_message);
-        adapter = new FirebaseListAdapter<Message>(this,
-                Message.class,
-                R.layout.list_item,
-                FirebaseDatabase.getInstance().getReference()) {
+        RecyclerView recyclerView = findViewById(R.id.list);
+
+        createRoomBtn = findViewById(R.id.createBtn);
+        createRoomBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            protected void populateView(View v, Message model, int position) {
-                TextView mess_user, mess_time;
-                BubbleTextView mess_text;
-                mess_user = v.findViewById(R.id.message_user);
-                mess_time = v.findViewById(R.id.message_time);
-                mess_text = v.findViewById(R.id.message_text);
-
-                mess_user.setText(model.getUserName());
-                mess_text.setText(model.getTextMessage());
-                mess_time.setText(DateFormat.format("HH:mm (dd MMM yyyy)", model.getMessageTime()));
+            public void onClick(View v) {
+                showDialog();
             }
-        };
-
-        listOFMessages.setAdapter(adapter);
+        });
+        RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        rooms.add(0, new Room("")); //Добавляем пустой итем в 0 позицию для того чтобы новые итемы записывались под него
+        mAdapter = new DataAdapter(rooms);
+        recyclerView.setAdapter(mAdapter);
     }
+
+    public void showDialog() {
+        ExampleDialog dialog = new ExampleDialog();
+        dialog.show(getSupportFragmentManager(), "example dialog");
+    }
+
+    @Override
+    public void applyTexts(String chatName) {
+        setInitialData(chatName);
+    }
+
+    public void setInitialData(String newChatName) {
+        rooms.add(1, new Room(newChatName));
+        mAdapter.notifyItemInserted(1);
+    }
+
 }
