@@ -1,9 +1,9 @@
 package com.example.chatapp;
 
-import android.widget.ImageView;
-
 public class Room {
-    private String chatName;
+    String chatName;
+
+    Room() {}
 
     public Room(String chatName) {
         this.chatName = chatName;

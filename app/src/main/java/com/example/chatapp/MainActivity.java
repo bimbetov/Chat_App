@@ -1,5 +1,6 @@
 package com.example.chatapp;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -25,6 +27,9 @@ import com.github.library.bubbleview.BubbleTextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -36,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
     private RelativeLayout rooms_activity;
     private List<Room> rooms = new ArrayList<>();
     private FloatingActionButton createRoomBtn;
-    RecyclerView.Adapter mAdapter;
-    DatabaseReference myRef;
+    private RecyclerView.Adapter mAdapter;
+    private DatabaseReference myRefForList;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -58,17 +63,10 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
-        myRef = FirebaseDatabase.getInstance().getReference("rooms");
-        rooms_activity = findViewById(R.id.rooms_activity);
-
         //Пользователь еще не авторизован
-        if (FirebaseAuth.getInstance().getCurrentUser() == null)
-            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), SIGN_IN_CODE);
-        else {
-            Snackbar.make(rooms_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
-        }
+        signCheck();
 
-        RecyclerView recyclerView = findViewById(R.id.list);
+        myRefForList = FirebaseDatabase.getInstance().getReference("rooms");
 
         createRoomBtn = findViewById(R.id.createBtn);
         createRoomBtn.setOnClickListener(new View.OnClickListener() {
@@ -77,11 +75,86 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
                 showDialog();
             }
         });
+
+        RecyclerView recyclerView = findViewById(R.id.list);
+        recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
+        ((LinearLayoutManager) layoutManager).setStackFromEnd(true);
+        ((LinearLayoutManager) layoutManager).setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
-        //rooms.add(0, new Room("")); //Добавляем пустой итем в 0 позицию для того чтобы новые итемы записывались под него
+
         mAdapter = new DataAdapter(rooms, this);
         recyclerView.setAdapter(mAdapter);
+
+        updateList();
+    }
+
+    /*@Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case 0:
+                removeRoom(item.getGroupId());
+                break;
+        }
+        return super.onContextItemSelected(item);
+    }*/
+
+    private void updateList(){
+        myRefForList.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                rooms.add(dataSnapshot.getValue(Room.class));
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                /*Room currRoom = dataSnapshot.getValue(Room.class);
+                int index = getItemIndex(currRoom);
+
+                rooms.remove(index);
+                mAdapter.notifyItemRemoved(index);*/
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private int getItemIndex(Room currRoom){
+        int index = -1;
+        for (int i = 0; i < rooms.size(); i++) {
+            if (rooms.get(i).getChatName().equals(currRoom.getChatName())){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    /*private void removeRoom(int position){
+        myRefForList.child(rooms.get(position).chatName).removeValue();
+    }*/
+
+    private void signCheck() {
+        rooms_activity = findViewById(R.id.rooms_activity);
+        if (FirebaseAuth.getInstance().getCurrentUser() == null)
+            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), SIGN_IN_CODE);
+        else {
+            Snackbar.make(rooms_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
+        }
     }
 
     public void showDialog() {
@@ -96,15 +169,13 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
 
     public void setInitialData(String newChatName) {
         Room room = new Room(newChatName);
-        rooms.add(0, room);
-        mAdapter.notifyItemInserted(0);
-        myRef.push().setValue(room);
+        myRefForList.push().setValue(room);
     }
 
     @Override
     public void onChatClick(int position) {
         Intent intent = new Intent(this, DisplayAllMessagesInTheRoom.class);
-        intent.putExtra("some_object", rooms.get(position).getChatName());
+        intent.putExtra("CHAT_NAME", rooms.get(position).getChatName());
         startActivity(intent);
     }
 }

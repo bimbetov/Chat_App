@@ -11,6 +11,7 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.github.library.bubbleview.BubbleTextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.Nullable;
@@ -19,21 +20,24 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
     private FloatingActionButton sendBtn;
     private FirebaseListAdapter<Message> adapter;
+    private DatabaseReference myRefForAllMessages;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final String chatName = getIntent().getStringExtra("some_object");
+        final String chatName = getIntent().getStringExtra("CHAT_NAME");
         TextView title = findViewById(R.id.title_forChat);
         title.setText(chatName);
+
+        myRefForAllMessages = FirebaseDatabase.getInstance().getReference("allMessages");
 
         ListView listOFMessages = findViewById(R.id.list_of_message);
         adapter = new FirebaseListAdapter<Message>(this,
                 Message.class,
                 R.layout.list_item,
-                FirebaseDatabase.getInstance().getReference().child("rooms").child(chatName)) {
+                myRefForAllMessages.child(chatName).child("messages")) {
             @Override
             protected void populateView(View v, Message model, int position) {
                 TextView mess_user, mess_time;
@@ -58,7 +62,7 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
                 if (textField.getText().toString().equals(""))
                     return;
 
-                FirebaseDatabase.getInstance().getReference().child("rooms").child(chatName).push().setValue(
+                myRefForAllMessages.child(chatName).child("messages").push().setValue(
                         new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
                                 textField.getText().toString()
                         )

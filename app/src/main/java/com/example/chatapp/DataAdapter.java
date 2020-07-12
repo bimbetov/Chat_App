@@ -1,6 +1,7 @@
 package com.example.chatapp;
 
 import android.content.Context;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,36 +44,29 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> 
     @NonNull
     @Override
     public DataAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
-        /*if (viewType == 0) {  //Creating a zero-height view that will sit at the top of the RecyclerView to force animations when items are added below it.
-            view = new Space(parent.getContext());
-            view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0));
-        } else {*/
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.room, parent, false);
-
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.room, parent, false);
         return new MyViewHolder(view, mOnChatListener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        /*if (position == 0) {
-            return;
-        }*/
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         Room room = rooms.get(position);
         holder.textView.setText(room.getChatName());
+
+        /*holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                menu.add(holder.getAdapterPosition(), 0, 0,"Удалить");
+            }
+        });*/
     }
-/*
-    @Override
-    public int getItemViewType(int position) {
-        return (position == 0) ? 0 : 1;
-    }*/
 
     @Override
     public int getItemCount() {
         return rooms.size();
     }
 
-    public interface OnChatListener{
+    public interface OnChatListener {
         void onChatClick(int position);
     }
 }
