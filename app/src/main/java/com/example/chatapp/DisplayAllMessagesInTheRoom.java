@@ -25,7 +25,7 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String chatName = getIntent().getStringExtra("some_object");
+        final String chatName = getIntent().getStringExtra("some_object");
         TextView title = findViewById(R.id.title_forChat);
         title.setText(chatName);
 
@@ -33,7 +33,7 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
         adapter = new FirebaseListAdapter<Message>(this,
                 Message.class,
                 R.layout.list_item,
-                FirebaseDatabase.getInstance().getReference()) {
+                FirebaseDatabase.getInstance().getReference().child("rooms").child(chatName)) {
             @Override
             protected void populateView(View v, Message model, int position) {
                 TextView mess_user, mess_time;
@@ -58,7 +58,7 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
                 if (textField.getText().toString().equals(""))
                     return;
 
-                FirebaseDatabase.getInstance().getReference().push().setValue(
+                FirebaseDatabase.getInstance().getReference().child("rooms").child(chatName).push().setValue(
                         new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
                                 textField.getText().toString()
                         )

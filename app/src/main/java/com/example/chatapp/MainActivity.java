@@ -25,6 +25,7 @@ import com.github.library.bubbleview.BubbleTextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
     private List<Room> rooms = new ArrayList<>();
     private FloatingActionButton createRoomBtn;
     RecyclerView.Adapter mAdapter;
+    DatabaseReference myRef;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
+        myRef = FirebaseDatabase.getInstance().getReference("rooms");
         rooms_activity = findViewById(R.id.rooms_activity);
 
         //Пользователь еще не авторизован
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         });
         RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        rooms.add(0, new Room("")); //Добавляем пустой итем в 0 позицию для того чтобы новые итемы записывались под него
+        //rooms.add(0, new Room("")); //Добавляем пустой итем в 0 позицию для того чтобы новые итемы записывались под него
         mAdapter = new DataAdapter(rooms, this);
         recyclerView.setAdapter(mAdapter);
     }
@@ -92,8 +95,10 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
     }
 
     public void setInitialData(String newChatName) {
-        rooms.add(1, new Room(newChatName));
-        mAdapter.notifyItemInserted(1);
+        Room room = new Room(newChatName);
+        rooms.add(0, room);
+        mAdapter.notifyItemInserted(0);
+        myRef.push().setValue(room);
     }
 
     @Override
