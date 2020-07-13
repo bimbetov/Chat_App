@@ -1,11 +1,8 @@
 package com.example.chatapp;
 
-import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Space;
 import android.widget.TextView;
 
 import java.util.List;
@@ -52,13 +49,6 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         Room room = rooms.get(position);
         holder.textView.setText(room.getChatName());
-
-        /*holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                menu.add(holder.getAdapterPosition(), 0, 0,"Удалить");
-            }
-        });*/
     }
 
     @Override

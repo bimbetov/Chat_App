@@ -3,7 +3,8 @@ package com.example.chatapp;
 public class Room {
     String chatName;
 
-    Room() {}
+    Room() {
+    }
 
     public Room(String chatName) {
         this.chatName = chatName;

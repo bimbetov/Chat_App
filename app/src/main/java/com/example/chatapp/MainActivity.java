@@ -6,24 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.DateFormat;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.database.FirebaseListAdapter;
-import com.github.library.bubbleview.BubbleTextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
-        //Пользователь еще не авторизован
+        //Проверка на авторизованность
         signCheck();
 
         myRefForList = FirebaseDatabase.getInstance().getReference("rooms");
@@ -89,16 +78,6 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         updateList();
     }
 
-    /*@Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case 0:
-                removeRoom(item.getGroupId());
-                break;
-        }
-        return super.onContextItemSelected(item);
-    }*/
-
     private void updateList(){
         myRefForList.addChildEventListener(new ChildEventListener() {
             @Override
@@ -109,44 +88,21 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                /*Room currRoom = dataSnapshot.getValue(Room.class);
-                int index = getItemIndex(currRoom);
-
-                rooms.remove(index);
-                mAdapter.notifyItemRemoved(index);*/
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
     }
-
-    private int getItemIndex(Room currRoom){
-        int index = -1;
-        for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).getChatName().equals(currRoom.getChatName())){
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
-
-    /*private void removeRoom(int position){
-        myRefForList.child(rooms.get(position).chatName).removeValue();
-    }*/
 
     private void signCheck() {
         rooms_activity = findViewById(R.id.rooms_activity);
