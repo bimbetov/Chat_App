@@ -63,7 +63,7 @@ public class DisplayAllMessagesInTheRoom extends AppCompatActivity {
                     return;
 
                 myRefForAllMessages.child(chatName).child("messages").push().setValue(
-                        new Message(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
+                        new Message(FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),
                                 textField.getText().toString()
                         )
                 );

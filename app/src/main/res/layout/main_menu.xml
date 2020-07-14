@@ -38,17 +38,14 @@
         android:layout_alignParentEnd="true"
         tools:listitem="@layout/room" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/createBtn"
-        android:layout_width="wrap_content"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="24dp"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:clickable="true"
-        android:src="@drawable/ic_create_button"
-        android:tint="@android:color/white"
-        app:fabSize="normal" />
+        android:id="@+id/bottom_navigation"
+        app:itemBackground="@color/title_color"
+        app:itemTextColor="@drawable/selector"
+        app:itemIconTint="@drawable/selector"
+        app:menu="@menu/menu_navigation"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

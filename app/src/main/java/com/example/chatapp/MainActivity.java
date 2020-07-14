@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,15 +57,10 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         //Проверка на авторизованность
         signCheck();
 
-        myRefForList = FirebaseDatabase.getInstance().getReference("rooms");
+        //Инициализация нижнего меню
+        initialBottomNavigationMenu();
 
-        createRoomBtn = findViewById(R.id.createBtn);
-        createRoomBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialog();
-            }
-        });
+        myRefForList = FirebaseDatabase.getInstance().getReference("rooms");
 
         RecyclerView recyclerView = findViewById(R.id.list);
         recyclerView.setHasFixedSize(true);
@@ -76,6 +73,36 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         recyclerView.setAdapter(mAdapter);
 
         updateList();
+    }
+
+    private void initialBottomNavigationMenu() {
+        final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        bottomNavigationView.setSelectedItemId(R.id.chats);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.add:
+                        showDialog();
+                        //bottomNavigationView.setSelectedItemId(R.id.add);
+                        break;
+                    case R.id.chats:
+                        break;
+                    case R.id.profile:
+                        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().toString();
+                        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().toString();
+                        Intent intent = new Intent(getApplicationContext(), Profile.class);
+                        intent.putExtra("USER_EMAIL", userEmail);
+                        intent.putExtra("USER_NAME", userName);
+                        startActivity(intent);
+                        overridePendingTransition(0,0);
+                        break;
+                }
+                return false;
+            }
+
+        });
     }
 
     private void updateList(){
@@ -109,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements ExampleDialog.Exa
         if (FirebaseAuth.getInstance().getCurrentUser() == null)
             startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), SIGN_IN_CODE);
         else {
-            Snackbar.make(rooms_activity, "Вы авторизованы", Snackbar.LENGTH_LONG).show();
+
+            //Snackbar.make(rooms_activity, "Вы авторизованы как " + userName, Snackbar.LENGTH_LONG).show();
         }
     }
 
