@@ -40,9 +40,15 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui:0.6.2'
     implementation 'com.google.firebase:firebase-core:17.2.1'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     //For design
     implementation 'com.google.android.material:material:1.1.0'
     //BubbleView
     implementation 'com.github.lguipeng:BubbleView:1.0.1'
+    //CircleImageView
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 }

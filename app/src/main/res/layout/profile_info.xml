@@ -28,16 +28,23 @@
             android:textSize="24sp" />
     </LinearLayout>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/person_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:src="@drawable/ic_account"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/title"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:src="@drawable/ic_account"
         />
+    <Button
+        android:id="@+id/choose_image_btn"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignEnd="@id/person_image"
+        android:layout_alignBottom="@id/person_image"
+        android:background="@drawable/ic_edit"/>
 
     <TextView
         android:id="@+id/name"
